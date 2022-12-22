@@ -1,5 +1,5 @@
-# Saved in Folder: UVA14
-# NOTE: For checking code run "Food reactive", "C,N,P,W Reactive"
+# Saved in Folder: UVA15
+# NOTE: For checking code, run code under "STEP_4": Food reactive", "C,N,P,W Reactive"
 
 # UVA data for C & N Footprints with: 
 # ***tabs, C/N comparison graph, fewer categories, commuting sources, food categories
@@ -51,7 +51,7 @@ options(dplyr.summarise.inform = FALSE)
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 #*****************************************************************************************************
-#Processing Dataset
+#Processing Dataset (When checking this code uncomment to load the datasets then recommentout )
 # proj_dir = 'C:/Users/MPennino/OneDrive - Environmental Protection Agency (EPA)/R/Shiny/IEFT/'
 # uva1 = read.csv(paste0(proj_dir,'Campus_Footprint_2016/UVA14/UVA_Inventories.csv'))
 # gwp = read.csv(paste0(proj_dir,'Campus_Footprint_2016/UVA14/GWP.csv'))
@@ -850,7 +850,7 @@ ui <- fluidPage(
                       tags$div(tags$b("Methodology:"),
                                style="text-align:justify;color:black;padding:15px;margin-top:-2em", 
                                tags$ul(
-                                 tags$li("Uses methods of Leach et al. 2012 and Dukes et al. 2021"),
+                                 tags$li("Uses methods of Leach et al. 2012 and Dukes et al. 2023"),
                                  tags$li("The amount or inventory of each category, sub-category, 
                                          or source that is used or consumed (e.g. coal, automobile, 
                                          beef, etc.) is multiplied by an emissions factor to 
@@ -866,7 +866,6 @@ ui <- fluidPage(
                                style="text-align:justify;color:black;padding:15px;margin-top:-2em",
                                tags$ul(
                                  tags$li("Ability to change inventory values"),
-                                 tags$li("Add tab to allow for changing emissions factors manually"),
                                  tags$li("Add a red line to where you would see an X% reduction in 
                                          each environmental footprint (e.g. if institutions have a 
                                          specific goal reduction that they need to reach)."),
@@ -1087,6 +1086,17 @@ ui <- fluidPage(
     
   
     tabPanel("Inventory Tables",
+             fluidRow(# Input: Choose Dataset to Download ----
+                      style="color: black; background-color: lightblue; border-color: Black;padding:15px",
+                      #sidebarPanel(# Input: Choose Dataset to Download ----
+                      selectInput(inputId="Table_INVENT", 
+                                  label="Choose a Table:",
+                                  choices = c("Main Inventory Table",
+                                              "Food Inventory Table")),
+
+                      # Download Button
+                      downloadButton("downloadData0", "Download")),
+             
                            mainPanel(h1('Main Inventory Table'),
                                      dataTableOutput('INVENT_TABLE1'),
                                      h1('Food Inventory Table'),
@@ -1120,7 +1130,7 @@ ui <- fluidPage(
                                                   "% Change in Footprint by Category")),
                           
                           # Download Button
-                          downloadButton("downloadData", "Download")),
+                          downloadButton("downloadData1", "Download")),
              mainPanel(# h1('Footprint Comparisons'),
                h1('Baseline Footprint'),
                dataTableOutput("CNPW_TABLE1"),
@@ -1248,6 +1258,17 @@ ui <- fluidPage(
     #                       )),
     
     tabPanel("BAU vs. Scenarios",
+             
+             fluidRow(# Input: Choose Dataset to Download ----
+                      style="color: black; background-color: lightblue; border-color: Black;padding:15px",
+                      selectInput(inputId="Table_BAU",
+                                  label="Choose a Table:",
+                                  choices = c("All: BAU vs Scenario % Change",
+                                              "Food: BAU vs. Scenario % Change")),
+
+                      # Download Button
+                      downloadButton("downloadData6", "Download")),
+             
              mainPanel(h1('All: BAU vs Scenario % Change'),
                        dataTableOutput('BAUvsScenario_TABLE1'),
                        h1('Food: BAU vs. Scenario % Change'),
@@ -1266,7 +1287,7 @@ ui <- fluidPage(
 # STEP_4 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-# Use this when testing the code, keep commented otherwise
+# Use this when testing the code, keep commented out otherwise
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 # names(food)[which(colnames(food)=="UVA_inventory")] = "inventory"
@@ -2223,6 +2244,417 @@ ui <- fluidPage(
 # 
 # 
 # FOOD_COST_R = FOOD
+# 
+# #**************************************************************************
+# Carbon_R
+# 
+# uva1 = uva
+# uva2 = uva
+# 
+# # Add Projected category
+# uva1$Timeframe = 'Baseline'
+# uva2$Timeframe = 'Projected'
+# 
+# COMBO = rbind(uva1,uva2)
+# 
+# # sum(COMBO[COMBO$Category == 'Commuting' & COMBO$Timeframe == 'Baseline',]$inventory)
+# 
+# #CARBON_____________________________________________________________________
+# # Result units = kg CO2
+# # Inventory unit (e.g. lb or gallon or kWh) * kg CO2 / inventory unit
+# COMBO$CO2_r = COMBO$inventory * COMBO$CO2.EF
+# 
+# # Result units = kg eCO2
+# # Inventory unit (e.g. lb or gallon or kWh) * kg eCO2 / inventory unit
+# COMBO$eCO2_r = COMBO$inventory * COMBO$eCO2.EF
+# 
+# # Result units = kg CH4
+# # Inventory unit (e.g. lb or gallon or kWh) * kg CH4 / inventory unit
+# COMBO$CH4_r = COMBO$inventory * COMBO$CH4.EF
+# 
+# #NITROGEN_____________________________________________________________________
+# # Result units = kg N20
+# # Inventory unit (e.g. lb or gallon or kWh) * kg N20 / inventory unit
+# COMBO$N2O_r = COMBO$inventory * COMBO$N2O.EF
+# 
+# # Result units = kg NOx
+# # Inventory unit (e.g. lb or gallon or kWh) * kg N20 / inventory unit
+# COMBO$NOx_r = COMBO$inventory * COMBO$NOx.EF
+# 
+# # Result units = kg N20
+# # Inventory unit (e.g. lb or gallon or kWh) * kg N20 / inventory unit
+# COMBO$OtherN_r = COMBO$inventory * COMBO$Other.N.EF
+# 
+# #INTERMEDIATE C & N _______________________________________________________________
+# 
+# # calculate Footprints by category (divide by 1000 to convert from kg to MT)
+# # Units of GWP
+# COMBO$CO2_MTCDE = COMBO$CO2_r/1000  # MT CO2e
+# COMBO$eCO2_MTCDE = COMBO$eCO2_r/1000 # MT CO2e
+# COMBO$CH4_MTCDE = COMBO$CH4_r * gwp[gwp$Pollutant=='CH4',]$GWP/1000 # MT CO2e
+# COMBO$N2O_MTCDE = COMBO$N2O_r * gwp[gwp$Pollutant=='N2O',]$GWP/1000 # MT CO2e
+# 
+# # Calculations only for refrigerants and chemicals for Carbon
+# # inventory (kg) * GWP (Unitless??) / 1000 = MT CO2e
+# COMBO$Ref_Chem[COMBO$Source=='HCFC-22'] = COMBO[COMBO$Source=='HCFC-22',]$inventory * gwp[gwp$Pollutant=='HCFC-22',]$GWP/1000 # MT CO2e
+# COMBO$Ref_Chem[COMBO$Source=='HCFE-235da2'] = COMBO[COMBO$Source=='HCFE-235da2',]$inventory * gwp[gwp$Pollutant=='HCFE-235da2',]$GWP/1000 # MT CO2e
+# COMBO$Ref_Chem[COMBO$Source=='HFC-134a'] = COMBO[COMBO$Source=='HFC-134a',]$inventory * gwp[gwp$Pollutant=='HFC-134a',]$GWP/1000 # MT CO2e
+# COMBO$Ref_Chem[COMBO$Source=='HG-10'] = COMBO[COMBO$Source=='HG-10',]$inventory * gwp[gwp$Pollutant=='HG-10',]$GWP/1000 # MT CO2e
+# #COMBO$Ref_Chem[COMBO$Source=='Other'] = COMBO[COMBO$Source=='Other',]$inventory * gwp[gwp$Pollutant=='Other',]$GWP/1000 # MT CO2e
+# COMBO$Ref_Chem[COMBO$Source=='R-404a'] = COMBO[COMBO$Source=='R-404a',]$inventory * gwp[gwp$Pollutant=='R-404a',]$GWP/1000 # MT CO2e
+# 
+# 
+# #*****************************************************************************************************
+# # FOOTPRINT Calculations
+# #*****************************************************************************************************
+# 
+# # CALCULATING FOOTPRINT C_____________________________________________________________________
+# # Units C_Footprint = Metric Tons, N_Footprint = Metric Tons
+# COMBO$C_Footprint = rowSums(COMBO[,c('CO2_MTCDE','eCO2_MTCDE','CH4_MTCDE','N2O_MTCDE','Ref_Chem')],na.rm=T)
+# 
+# 
+# #*****************************************************************************************************
+# # FOOTPRINT DATA OUTPUT
+# #*****************************************************************************************************
+# 
+# # Summarize by Category___________________________________________________________________________
+# # Units are MT C, MT N, MT P, Gallons Water
+# 
+# COMBO1 = COMBO[COMBO$Timeframe == 'Baseline',] %>%
+#   group_by(Category) %>%
+#   summarize(Total_C_Footprint = sum(C_Footprint,na.rm=T))
+# COMBO2 = COMBO[COMBO$Timeframe == 'Projected',] %>%
+#   group_by(Category) %>%
+#   summarize(Total_C_Footprint = sum(C_Footprint,na.rm=T))
+# 
+# COMBO1$Timeframe = 'Baseline'
+# COMBO2$Timeframe = 'Projected'
+# 
+# 
+# #*****************************************************************************************************
+# # ADD FOOD ONTO FOOTPRINT Calculations
+# #*****************************************************************************************************
+# 
+# # Calculate total food footprints (original units = kg for C,N,P or gal for water)
+# # final units = MT (Metric Tons)
+# 
+# # food1_ = FOOD_R[FOOD_R$Timeframe == 'Baseline',]
+# # food2_ = FOOD_R[FOOD_R$Timeframe == 'Projected',]
+# food1_ = FOOD_R()[FOOD_R()$Timeframe == 'Baseline',]
+# food2_ = FOOD_R()[FOOD_R()$Timeframe == 'Projected',]
+# 
+# C_food_footprint1 = sum(food1_$C_footprint,na.rm=T)/1000 # convert to MT from kg
+# C_food_footprint2 = sum(food2_$C_footprint,na.rm=T)/1000 # convert to MT from kg
+# 
+# #Make a new 1 row dataframe
+# C_food_rw1 = data.frame(Category = 'Food',Total_C_Footprint = C_food_footprint1)
+# C_food_rw2 = data.frame(Category = 'Food',Total_C_Footprint = C_food_footprint2)
+# 
+# C_food_rw1$Timeframe = 'Baseline'
+# C_food_rw2$Timeframe = 'Projected'
+# 
+# # add on the food row
+# COMBO_foot1 = rbind(COMBO1,C_food_rw1)
+# COMBO_foot2 = rbind(COMBO2,C_food_rw2)
+# 
+# COMBO_foot = rbind(COMBO_foot1,COMBO_foot2)
+# 
+# # Rearrange the rows to match the slider rows
+# Carbon_R = rbind(COMBO_foot[COMBO_foot$Category=='Purchased Electricity',],
+#                  COMBO_foot[COMBO_foot$Category=='Food',],
+#                  COMBO_foot[COMBO_foot$Category=='On-Campus Stationary Sources',],
+#                  COMBO_foot[COMBO_foot$Category=='Direct Transportation Sources',],
+#                  COMBO_foot[COMBO_foot$Category=='Commuting',],
+#                  #COMBO_foot[COMBO_foot$Category=='Directly Financed Outsourced Travel',],
+#                  COMBO_foot[COMBO_foot$Category=='Agriculture Sources',],
+#                  COMBO_foot[COMBO_foot$Category=='Refrigerants & Chemicals',],
+#                  COMBO_foot[COMBO_foot$Category=='Wastewater',],
+#                  COMBO_foot[COMBO_foot$Category=='Direct Water Use',])
+# 
+# #*****************************************************************************
+# # Nitrogen_R
+# uva1 = uva
+# uva2 = uva
+# 
+# # Add Projected category
+# uva1$Timeframe = 'Baseline'
+# uva2$Timeframe = 'Projected'
+# 
+# COMBO = rbind(uva1,uva2)
+# 
+# 
+# #NITROGEN_____________________________________________________________________
+# # Result units = kg N20
+# # Inventory unit (e.g. lb or gallon or kWh) * kg N20 / inventory unit
+# COMBO$N2O_r = COMBO$inventory * COMBO$N2O.EF
+# 
+# # Result units = kg NOx
+# # Inventory unit (e.g. lb or gallon or kWh) * kg N20 / inventory unit
+# COMBO$NOx_r = COMBO$inventory * COMBO$NOx.EF
+# 
+# # Result units = kg N20
+# # Inventory unit (e.g. lb or gallon or kWh) * kg N20 / inventory unit
+# COMBO$OtherN_r = COMBO$inventory * COMBO$Other.N.EF
+# 
+# #INTERMEDIATE N _______________________________________________________________
+# 
+# # intermediate N
+# COMBO$N2O_MTN = COMBO$N2O_r * N_Convers[N_Convers$Pollutant=='N2O',]$Perc_N/1000 # MT N
+# COMBO$NOx_MTN = COMBO$NOx_r * N_Convers[N_Convers$Pollutant=='NOx',]$Perc_N/1000 # MT N
+# COMBO$OtherN_MTN = COMBO$OtherN_r * N_Convers[N_Convers$Pollutant=='Other N',]$Perc_N/1000 # MT N
+# 
+# #*****************************************************************************************************
+# # FOOTPRINT Calculations
+# #*****************************************************************************************************
+# 
+# # CALCULATING FOOTPRINT C & N_____________________________________________________________________
+# # Units N_Footprint = Metric Tons
+# COMBO$N_Footprint = rowSums(COMBO[,c('N2O_MTN','NOx_MTN','OtherN_MTN')],na.rm=T)
+# 
+# #*****************************************************************************************************
+# # FOOTPRINT DATA OUTPUT
+# #*****************************************************************************************************
+# 
+# # Summarize by Category___________________________________________________________________________
+# # Units are MT C, MT N, MT P, Gallons Water
+# 
+# COMBO1 = COMBO[COMBO$Timeframe == 'Baseline',] %>%
+#   group_by(Category) %>%
+#   summarize(Total_N_Footprint = sum(N_Footprint,na.rm=T))
+# COMBO2 = COMBO[COMBO$Timeframe == 'Projected',] %>%
+#   group_by(Category) %>%
+#   summarize(Total_N_Footprint = sum(N_Footprint,na.rm=T))
+# 
+# COMBO1$Timeframe = 'Baseline'
+# COMBO2$Timeframe = 'Projected'
+# 
+# 
+# #*****************************************************************************************************
+# # ADD FOOD ONTO FOOTPRINT Calculations
+# #*****************************************************************************************************
+# 
+# # Calculate total food footprints (original units = kg for C,N,P or gal for water)
+# # final units = MT (Metric Tons)
+# 
+# # food1_ = FOOD_R[FOOD_R$Timeframe == 'Baseline',]
+# # food2_ = FOOD_R[FOOD_R$Timeframe == 'Projected',]
+# food1_ = FOOD_R()[FOOD_R()$Timeframe == 'Baseline',]
+# food2_ = FOOD_R()[FOOD_R()$Timeframe == 'Projected',]
+# 
+# 
+# N_food_footprint1 = sum(food1_$N_footprint,na.rm=T)/1000
+# N_food_footprint2 = sum(food2_$N_footprint,na.rm=T)/1000
+# 
+# #Make a new 1 row dataframe
+# N_food_rw1 = data.frame(Category = 'Food',Total_N_Footprint = N_food_footprint1)
+# N_food_rw2 = data.frame(Category = 'Food',Total_N_Footprint = N_food_footprint2)
+# 
+# N_food_rw1$Timeframe = 'Baseline'
+# N_food_rw2$Timeframe = 'Projected'
+# 
+# # add on the food row
+# COMBO_foot1 = rbind(COMBO1,N_food_rw1)
+# COMBO_foot2 = rbind(COMBO2,N_food_rw2)
+# 
+# COMBO_foot = rbind(COMBO_foot1,COMBO_foot2)
+# 
+# # Rearrange the rows to match the slider rows
+# Nitrogen_R = rbind(COMBO_foot[COMBO_foot$Category=='Purchased Electricity',],
+#                    COMBO_foot[COMBO_foot$Category=='Food',],
+#                    COMBO_foot[COMBO_foot$Category=='On-Campus Stationary Sources',],
+#                    COMBO_foot[COMBO_foot$Category=='Direct Transportation Sources',],
+#                    COMBO_foot[COMBO_foot$Category=='Commuting',],
+#                    #COMBO_foot[COMBO_foot$Category=='Directly Financed Outsourced Travel',],
+#                    COMBO_foot[COMBO_foot$Category=='Agriculture Sources',],
+#                    COMBO_foot[COMBO_foot$Category=='Refrigerants & Chemicals',],
+#                    COMBO_foot[COMBO_foot$Category=='Wastewater',],
+#                    COMBO_foot[COMBO_foot$Category=='Direct Water Use',])
+# 
+# #****************************************************************************
+# # Phosphorus_R
+# 
+# uva1 = uva_R
+# uva2 = uva_R
+# 
+# # Add Projected category
+# uva1$Timeframe = 'Baseline'
+# uva2$Timeframe = 'Projected'
+# COMBO = rbind(uva1,uva2)
+# 
+# #*****************************************************************************************************
+# # FOOTPRINT Calculations
+# #*****************************************************************************************************
+# 
+# #PHOSPHORUS FOOTPRINT_____________________________________________________________________
+# 
+# # Result units = MT of P
+# # Inventory unit (e.g. US gallon) * kg P / inventory unit
+# COMBO$P_Footprint = COMBO$inventory * COMBO$P.EF /1000  # Divide by 1000 to get metric tons
+# 
+# #*****************************************************************************************************
+# # FOOTPRINT DATA OUTPUT
+# #*****************************************************************************************************
+# 
+# # Summarize by Category___________________________________________________________________________
+# # Units are MT P
+# 
+# COMBO1 = COMBO[COMBO$Timeframe == 'Baseline',] %>%
+#   group_by(Category) %>%
+#   summarize(Total_P_Footprint = sum(P_Footprint,na.rm=T))
+# COMBO2 = COMBO[COMBO$Timeframe == 'Projected',] %>%
+#   group_by(Category) %>%
+#   summarize(Total_P_Footprint = sum(P_Footprint,na.rm=T))
+# 
+# COMBO1$Timeframe = 'Baseline'
+# COMBO2$Timeframe = 'Projected'
+# 
+# #*****************************************************************************************************
+# # ADD FOOD ONTO FOOTPRINT Calculations
+# #*****************************************************************************************************
+# 
+# # Calculate total food footprints (original units = kg for C,N,P or gal for water)
+# # final units = MT (Metric Tons)
+# 
+# # food1_ = FOOD_R[FOOD_R$Timeframe == 'Baseline',]
+# # food2_ = FOOD_R[FOOD_R$Timeframe == 'Projected',]
+# food1_ = FOOD_R()[FOOD_R()$Timeframe == 'Baseline',]
+# food2_ = FOOD_R()[FOOD_R()$Timeframe == 'Projected',]
+# 
+# P_food_footprint1 = sum(food1_$P_footprint,na.rm=T)/1000
+# P_food_footprint2 = sum(food2_$P_footprint,na.rm=T)/1000
+# 
+# #Make a new 1 row dataframe
+# P_food_rw1 = data.frame(Category = 'Food',Total_P_Footprint = P_food_footprint1)
+# P_food_rw2 = data.frame(Category = 'Food',Total_P_Footprint = P_food_footprint2)
+# 
+# P_food_rw1$Timeframe = 'Baseline'
+# P_food_rw2$Timeframe = 'Projected'
+# 
+# # add on the food row
+# COMBO_foot1 = rbind(COMBO1,P_food_rw1)
+# COMBO_foot2 = rbind(COMBO2,P_food_rw2)
+# 
+# COMBO_foot = rbind(COMBO_foot1,COMBO_foot2)
+# 
+# # Rearrange the rows to match the slider rows
+# Phosphorus_R = rbind(COMBO_foot[COMBO_foot$Category=='Purchased Electricity',],
+#                      COMBO_foot[COMBO_foot$Category=='Food',],
+#                      COMBO_foot[COMBO_foot$Category=='On-Campus Stationary Sources',],
+#                      COMBO_foot[COMBO_foot$Category=='Direct Transportation Sources',],
+#                      COMBO_foot[COMBO_foot$Category=='Commuting',],
+#                      #COMBO_foot[COMBO_foot$Category=='Directly Financed Outsourced Travel',],
+#                      COMBO_foot[COMBO_foot$Category=='Agriculture Sources',],
+#                      COMBO_foot[COMBO_foot$Category=='Refrigerants & Chemicals',],
+#                      COMBO_foot[COMBO_foot$Category=='Wastewater',],
+#                      COMBO_foot[COMBO_foot$Category=='Direct Water Use',])
+# 
+# #***************************************************************************
+# # Water_R
+# 
+# uva1 = uva
+# uva2 = uva
+# 
+# # Add Projected category
+# uva1$Timeframe = 'Baseline'
+# uva2$Timeframe = 'Projected'
+# 
+# COMBO = rbind(uva1,uva2)
+# 
+# #*****************************************************************************************************
+# # FOOTPRINT Calculations
+# #*****************************************************************************************************
+# 
+# #WATER FOOTPRINT ________________________________________________________________
+# 
+# # Result units = gallons
+# # Inventory unit (e.g. US gallon) * (gal water / inventory unit)
+# COMBO$W_Footprint1 = COMBO$inventory * COMBO$Water.EF #* 0.00378541178 us this if convert to m3
+# 
+# 
+# for (i in 1:nrow(COMBO)){
+#   if(COMBO$Scope[i]=='Scope 1' &
+#      COMBO$Category[i]=='Direct Water Use' &
+#      COMBO$Sub_category[i]=='On-campus water consumption' &
+#      COMBO$Source[i]=='Direct Use') {
+#     COMBO$W_Footprint[i] = COMBO$W_Footprint1[i] * 1000000
+#   } else if(COMBO$Scope[i]=='Scope 2' &
+#             COMBO$Category[i]=='Purchased Electricity' &
+#             COMBO$Sub_category[i]=='Purchased Electricity' &
+#             COMBO$Source[i]=='Purchased Electricity'){
+#     COMBO$W_Footprint[i] = COMBO$W_Footprint1[i] * (10^(-12))*3600000/0.00378541178
+#   } else {
+#     COMBO$W_Footprint[i] = COMBO$W_Footprint1[i]
+#   }
+# }
+# 
+# #*****************************************************************************************************
+# # FOOTPRINT DATA OUTPUT
+# #*****************************************************************************************************
+# 
+# # Summarize by Category___________________________________________________________________________
+# # Units are MT C, MT N, MT P, Gallons Water
+# 
+# COMBO1 = COMBO[COMBO$Timeframe == 'Baseline',] %>%
+#   group_by(Category) %>%
+#   summarize(Total_W_Footprint = sum(W_Footprint,na.rm=T))
+# COMBO2 = COMBO[COMBO$Timeframe == 'Projected',] %>%
+#   group_by(Category) %>%
+#   summarize(Total_W_Footprint = sum(W_Footprint,na.rm=T))
+# 
+# COMBO1$Timeframe = 'Baseline'
+# COMBO2$Timeframe = 'Projected'
+# 
+# #*****************************************************************************************************
+# # ADD FOOD ONTO FOOTPRINT Calculations
+# #*****************************************************************************************************
+# 
+# # Calculate total food footprints (original units = kg for C,N,P or gal for water)
+# # final units = MT (Metric Tons)
+# 
+# # food1_ = FOOD_R[FOOD_R$Timeframe == 'Baseline',]
+# # food2_ = FOOD_R[FOOD_R$Timeframe == 'Projected',]
+# food1_ = FOOD_R()[FOOD_R()$Timeframe == 'Baseline',]
+# food2_ = FOOD_R()[FOOD_R()$Timeframe == 'Projected',]
+# 
+# # Units for water = gallons
+# B_food_footprint1 = sum(food1_$B_footprint,na.rm=T)
+# B_food_footprint2 = sum(food2_$B_footprint,na.rm=T)
+# G_food_footprint1 = sum(food1_$G_footprint,na.rm=T)
+# G_food_footprint2 = sum(food2_$G_footprint,na.rm=T)
+# BG_food_footprint1 = sum(food1_$BG_footprint,na.rm=T)
+# BG_food_footprint2 = sum(food2_$BG_footprint,na.rm=T)
+# 
+# #Make a new 1 row dataframe
+# B_food_rw1 = data.frame(Category = 'Food',Total_W_Footprint = B_food_footprint1)
+# B_food_rw2 = data.frame(Category = 'Food',Total_W_Footprint = B_food_footprint2)
+# G_food_rw1 = data.frame(Category = 'Food',Total_W_Footprint = G_food_footprint1)
+# G_food_rw2 = data.frame(Category = 'Food',Total_W_Footprint = G_food_footprint2)
+# BG_food_rw1 = data.frame(Category = 'Food',Total_W_Footprint = BG_food_footprint1)
+# BG_food_rw2 = data.frame(Category = 'Food',Total_W_Footprint = BG_food_footprint2)
+# 
+# W_food_rw1 = B_food_rw1
+# W_food_rw2 = B_food_rw2
+# 
+# W_food_rw1$Timeframe = 'Baseline'
+# W_food_rw2$Timeframe = 'Projected'
+# 
+# # add on the food row
+# COMBO_foot1 = rbind(COMBO1,W_food_rw1)
+# COMBO_foot2 = rbind(COMBO2,W_food_rw2)
+# 
+# COMBO_foot = rbind(COMBO_foot1,COMBO_foot2)
+# 
+# # Rearrange the rows to match the slider rows
+# Water_R = rbind(COMBO_foot[COMBO_foot$Category=='Purchased Electricity',],
+#                 COMBO_foot[COMBO_foot$Category=='Food',],
+#                 COMBO_foot[COMBO_foot$Category=='On-Campus Stationary Sources',],
+#                 COMBO_foot[COMBO_foot$Category=='Direct Transportation Sources',],
+#                 COMBO_foot[COMBO_foot$Category=='Commuting',],
+#                 #COMBO_foot[COMBO_foot$Category=='Directly Financed Outsourced Travel',],
+#                 COMBO_foot[COMBO_foot$Category=='Agriculture Sources',],
+#                 COMBO_foot[COMBO_foot$Category=='Refrigerants & Chemicals',],
+#                 COMBO_foot[COMBO_foot$Category=='Wastewater',],
+#                 COMBO_foot[COMBO_foot$Category=='Direct Water Use',])
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # STEP_4 End >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -4091,6 +4523,7 @@ server <- function(input, output) {
     # Scenario section 0
     #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     if(input$scenario == "Manual Scenario"){
+      #food = FOOD_R()
     names(food)[which(colnames(food)=="UVA_inventory")] = "inventory"
     names(food)[which(colnames(food)=="Food_category")] = "Category"
     
@@ -4193,7 +4626,8 @@ server <- function(input, output) {
     #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
  
     else if(input$scenario == "Business as Usual Growth to 2025"){
-    names(food)[which(colnames(food)=="UVA_inventory")] = "inventory"
+      #food = FOOD_R()
+      names(food)[which(colnames(food)=="UVA_inventory")] = "inventory"
     names(food)[which(colnames(food)=="Food_category")] = "Category"
     
     food$Color_codes = str_remove(food$Color_codes, '#')
@@ -4295,6 +4729,7 @@ server <- function(input, output) {
     #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     
     else if(input$scenario == "15% Vegetarian Meals"){
+      #food = FOOD_R()
       names(food)[which(colnames(food)=="UVA_inventory")] = "inventory"
       names(food)[which(colnames(food)=="Food_category")] = "Category"
       
@@ -4397,6 +4832,7 @@ server <- function(input, output) {
     #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     
     else if(input$scenario == "Replacement of 20% beef with Chicken"){
+      #food = FOOD_R()
       names(food)[which(colnames(food)=="UVA_inventory")] = "inventory"
       names(food)[which(colnames(food)=="Food_category")] = "Category"
       
@@ -4499,6 +4935,7 @@ server <- function(input, output) {
     #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     
     else if(input$scenario == "Fuel Optimization"){
+      #food = FOOD_R()
       names(food)[which(colnames(food)=="UVA_inventory")] = "inventory"
       names(food)[which(colnames(food)=="Food_category")] = "Category"
       
@@ -4601,6 +5038,7 @@ server <- function(input, output) {
     #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     
     else if(input$scenario == "Implementing All Scenarios"){
+      #food = FOOD_R()
       names(food)[which(colnames(food)=="UVA_inventory")] = "inventory"
       names(food)[which(colnames(food)=="Food_category")] = "Category"
       
@@ -4921,8 +5359,8 @@ server <- function(input, output) {
     sectr8 = 'Wastewater'
     sectr9 = 'Direct Water Use'
     
-    uva1 = uva_R
-    uva2 = uva_R
+    uva1 = uva_R()
+    uva2 = uva_R()
     
     # Add Projected category
     uva1$Timeframe = 'Baseline'
@@ -5101,8 +5539,8 @@ server <- function(input, output) {
       sectr8 = 'Wastewater'
       sectr9 = 'Direct Water Use'
       
-      uva1 = uva_R
-      uva2 = uva_R
+      uva1 = uva_R()
+      uva2 = uva_R()
       
       # Add Projected category
       uva1$Timeframe = 'Baseline'
@@ -5281,8 +5719,8 @@ server <- function(input, output) {
       sectr8 = 'Wastewater'
       sectr9 = 'Direct Water Use'
       
-      uva1 = uva_R
-      uva2 = uva_R
+      uva1 = uva_R()
+      uva2 = uva_R()
       
       # Add Projected category
       uva1$Timeframe = 'Baseline'
@@ -5461,8 +5899,8 @@ server <- function(input, output) {
       sectr8 = 'Wastewater'
       sectr9 = 'Direct Water Use'
       
-      uva1 = uva_R
-      uva2 = uva_R
+      uva1 = uva_R()
+      uva2 = uva_R()
       
       # Add Projected category
       uva1$Timeframe = 'Baseline'
@@ -5641,8 +6079,8 @@ server <- function(input, output) {
       sectr8 = 'Wastewater'
       sectr9 = 'Direct Water Use'
       
-      uva1 = uva_R
-      uva2 = uva_R
+      uva1 = uva_R()
+      uva2 = uva_R()
       
       # Add Projected category
       uva1$Timeframe = 'Baseline'
@@ -10262,9 +10700,11 @@ server <- function(input, output) {
     if(input$scenario == "Manual Scenario"){
     # Footprint Units are MT C and MT N
     
-    commut1 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Faculty Commuting',]
-    commut2 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Faculty Commuting',]
-    
+    #commut1 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Faculty Commuting',]
+    #commut2 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Faculty Commuting',]
+      commut1 = uva_R()[uva_R()$Category == 'Commuting' & uva_R()$Sub_category == 'Faculty Commuting',]
+      commut2 = uva_R()[uva_R()$Category == 'Commuting' & uva_R()$Sub_category == 'Faculty Commuting',]
+      
     # Add Projected category
     commut1$Timeframe = 'Baseline'
     commut2$Timeframe = 'Projected'
@@ -10297,9 +10737,11 @@ server <- function(input, output) {
     else if(input$scenario == "Business as Usual Growth to 2025"){
       # Footprint Units are MT C and MT N
       
-    commut1 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Faculty Commuting',]
-    commut2 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Faculty Commuting',]
-    
+    #commut1 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Faculty Commuting',]
+    #commut2 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Faculty Commuting',]
+      commut1 = uva_R()[uva_R()$Category == 'Commuting' & uva_R()$Sub_category == 'Faculty Commuting',]
+      commut2 = uva_R()[uva_R()$Category == 'Commuting' & uva_R()$Sub_category == 'Faculty Commuting',]
+      
     # Add Projected category
     commut1$Timeframe = 'Baseline'
     commut2$Timeframe = 'Projected'
@@ -10331,8 +10773,10 @@ server <- function(input, output) {
     else if(input$scenario == "15% Vegetarian Meals"){
       # Footprint Units are MT C and MT N
       
-      commut1 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Faculty Commuting',]
-      commut2 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Faculty Commuting',]
+      #commut1 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Faculty Commuting',]
+      #commut2 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Faculty Commuting',]
+      commut1 = uva_R()[uva_R()$Category == 'Commuting' & uva_R()$Sub_category == 'Faculty Commuting',]
+      commut2 = uva_R()[uva_R()$Category == 'Commuting' & uva_R()$Sub_category == 'Faculty Commuting',]
       
       # Add Projected category
       commut1$Timeframe = 'Baseline'
@@ -10365,8 +10809,10 @@ server <- function(input, output) {
     else if(input$scenario == "Replacement of 20% beef with Chicken"){
       # Footprint Units are MT C and MT N
       
-      commut1 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Faculty Commuting',]
-      commut2 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Faculty Commuting',]
+      #commut1 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Faculty Commuting',]
+      #commut2 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Faculty Commuting',]
+      commut1 = uva_R()[uva_R()$Category == 'Commuting' & uva_R()$Sub_category == 'Faculty Commuting',]
+      commut2 = uva_R()[uva_R()$Category == 'Commuting' & uva_R()$Sub_category == 'Faculty Commuting',]
       
       # Add Projected category
       commut1$Timeframe = 'Baseline'
@@ -10399,8 +10845,10 @@ server <- function(input, output) {
     else if(input$scenario == "Fuel Optimization"){
       # Footprint Units are MT C and MT N
       
-      commut1 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Faculty Commuting',]
-      commut2 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Faculty Commuting',]
+      #commut1 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Faculty Commuting',]
+      #commut2 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Faculty Commuting',]
+      commut1 = uva_R()[uva_R()$Category == 'Commuting' & uva_R()$Sub_category == 'Faculty Commuting',]
+      commut2 = uva_R()[uva_R()$Category == 'Commuting' & uva_R()$Sub_category == 'Faculty Commuting',]
       
       # Add Projected category
       commut1$Timeframe = 'Baseline'
@@ -10433,8 +10881,10 @@ server <- function(input, output) {
     else if(input$scenario == "Implementing All Scenarios"){
       # Footprint Units are MT C and MT N
       
-      commut1 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Faculty Commuting',]
-      commut2 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Faculty Commuting',]
+      #commut1 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Faculty Commuting',]
+      #commut2 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Faculty Commuting',]
+      commut1 = uva_R()[uva_R()$Category == 'Commuting' & uva_R()$Sub_category == 'Faculty Commuting',]
+      commut2 = uva_R()[uva_R()$Category == 'Commuting' & uva_R()$Sub_category == 'Faculty Commuting',]
       
       # Add Projected category
       commut1$Timeframe = 'Baseline'
@@ -11038,8 +11488,10 @@ server <- function(input, output) {
     if(input$scenario == "Manual Scenario"){
     # Footprint Units are MT C and MT N
     
-    commut1 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Staff Commuting',]
-    commut2 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Staff Commuting',]
+    #commut1 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Staff Commuting',]
+    #commut2 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Staff Commuting',]
+    commut1 = uva_R()[uva_R()$Category == 'Commuting' & uva_R()$Sub_category == 'Staff Commuting',]
+    commut2 = uva_R()[uva_R()$Category == 'Commuting' & uva_R()$Sub_category == 'Staff Commuting',]
     
     # Add Projected category
     commut1$Timeframe = 'Baseline'
@@ -11073,9 +11525,11 @@ server <- function(input, output) {
     else if(input$scenario == "Business as Usual Growth to 2025"){
       # Footprint Units are MT C and MT N
       
-      commut1 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Staff Commuting',]
-    commut2 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Staff Commuting',]
-    
+    #commut1 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Staff Commuting',]
+    #commut2 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Staff Commuting',]
+      commut1 = uva_R()[uva_R()$Category == 'Commuting' & uva_R()$Sub_category == 'Staff Commuting',]
+      commut2 = uva_R()[uva_R()$Category == 'Commuting' & uva_R()$Sub_category == 'Staff Commuting',]
+      
     # Add Projected category
     commut1$Timeframe = 'Baseline'
     commut2$Timeframe = 'Projected'
@@ -11108,8 +11562,10 @@ server <- function(input, output) {
     else if(input$scenario == "15% Vegetarian Meals"){
       # Footprint Units are MT C and MT N
       
-      commut1 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Staff Commuting',]
-      commut2 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Staff Commuting',]
+      #commut1 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Staff Commuting',]
+      #commut2 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Staff Commuting',]
+      commut1 = uva_R()[uva_R()$Category == 'Commuting' & uva_R()$Sub_category == 'Staff Commuting',]
+      commut2 = uva_R()[uva_R()$Category == 'Commuting' & uva_R()$Sub_category == 'Staff Commuting',]
       
       # Add Projected category
       commut1$Timeframe = 'Baseline'
@@ -11143,8 +11599,10 @@ server <- function(input, output) {
     else if(input$scenario == "Replacement of 20% beef with Chicken"){
       # Footprint Units are MT C and MT N
       
-      commut1 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Staff Commuting',]
-      commut2 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Staff Commuting',]
+      #commut1 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Staff Commuting',]
+      #commut2 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Staff Commuting',]
+      commut1 = uva_R()[uva_R()$Category == 'Commuting' & uva_R()$Sub_category == 'Staff Commuting',]
+      commut2 = uva_R()[uva_R()$Category == 'Commuting' & uva_R()$Sub_category == 'Staff Commuting',]
       
       # Add Projected category
       commut1$Timeframe = 'Baseline'
@@ -11178,8 +11636,10 @@ server <- function(input, output) {
     else if(input$scenario == "Fuel Optimization"){
       # Footprint Units are MT C and MT N
       
-      commut1 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Staff Commuting',]
-      commut2 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Staff Commuting',]
+      #commut1 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Staff Commuting',]
+      #commut2 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Staff Commuting',]
+      commut1 = uva_R()[uva_R()$Category == 'Commuting' & uva_R()$Sub_category == 'Staff Commuting',]
+      commut2 = uva_R()[uva_R()$Category == 'Commuting' & uva_R()$Sub_category == 'Staff Commuting',]
       
       # Add Projected category
       commut1$Timeframe = 'Baseline'
@@ -11213,8 +11673,10 @@ server <- function(input, output) {
     else if(input$scenario == "Implementing All Scenarios"){
       # Footprint Units are MT C and MT N
       
-      commut1 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Staff Commuting',]
-      commut2 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Staff Commuting',]
+      #commut1 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Staff Commuting',]
+      #commut2 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Staff Commuting',]
+      commut1 = uva_R()[uva_R()$Category == 'Commuting' & uva_R()$Sub_category == 'Staff Commuting',]
+      commut2 = uva_R()[uva_R()$Category == 'Commuting' & uva_R()$Sub_category == 'Staff Commuting',]
       
       # Add Projected category
       commut1$Timeframe = 'Baseline'
@@ -11830,8 +12292,10 @@ server <- function(input, output) {
     if(input$scenario == "Manual Scenario"){
     # Footprint Units are MT C and MT N
     
-    commut1 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Student Commuting',]
-    commut2 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Student Commuting',]
+    #commut1 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Student Commuting',]
+    #commut2 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Student Commuting',]
+    commut1 = uva_R()[uva_R()$Category == 'Commuting' & uva_R()$Sub_category == 'Student Commuting',]
+    commut2 = uva_R()[uva_R()$Category == 'Commuting' & uva_R()$Sub_category == 'Student Commuting',]
     
     # Add Projected category
     commut1$Timeframe = 'Baseline'
@@ -11865,9 +12329,11 @@ server <- function(input, output) {
     else if(input$scenario == "Business as Usual Growth to 2025"){
       # Footprint Units are MT C and MT N
       
-      commut1 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Student Commuting',]
-    commut2 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Student Commuting',]
-    
+    #commut1 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Student Commuting',]
+    #commut2 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Student Commuting',]
+      commut1 = uva_R()[uva_R()$Category == 'Commuting' & uva_R()$Sub_category == 'Student Commuting',]
+      commut2 = uva_R()[uva_R()$Category == 'Commuting' & uva_R()$Sub_category == 'Student Commuting',]
+      
     # Add Projected category
     commut1$Timeframe = 'Baseline'
     commut2$Timeframe = 'Projected'
@@ -11900,8 +12366,10 @@ server <- function(input, output) {
     else if(input$scenario == "15% Vegetarian Meals"){
       # Footprint Units are MT C and MT N
       
-      commut1 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Student Commuting',]
-      commut2 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Student Commuting',]
+      #commut1 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Student Commuting',]
+      #commut2 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Student Commuting',]
+      commut1 = uva_R()[uva_R()$Category == 'Commuting' & uva_R()$Sub_category == 'Student Commuting',]
+      commut2 = uva_R()[uva_R()$Category == 'Commuting' & uva_R()$Sub_category == 'Student Commuting',]
       
       # Add Projected category
       commut1$Timeframe = 'Baseline'
@@ -11935,8 +12403,10 @@ server <- function(input, output) {
     else if(input$scenario == "Replacement of 20% beef with Chicken"){
       # Footprint Units are MT C and MT N
       
-      commut1 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Student Commuting',]
-      commut2 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Student Commuting',]
+      #commut1 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Student Commuting',]
+      #commut2 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Student Commuting',]
+      commut1 = uva_R()[uva_R()$Category == 'Commuting' & uva_R()$Sub_category == 'Student Commuting',]
+      commut2 = uva_R()[uva_R()$Category == 'Commuting' & uva_R()$Sub_category == 'Student Commuting',]
       
       # Add Projected category
       commut1$Timeframe = 'Baseline'
@@ -11970,8 +12440,10 @@ server <- function(input, output) {
     else if(input$scenario == "Fuel Optimization"){
       # Footprint Units are MT C and MT N
       
-      commut1 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Student Commuting',]
-      commut2 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Student Commuting',]
+      #commut1 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Student Commuting',]
+      #commut2 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Student Commuting',]
+      commut1 = uva_R()[uva_R()$Category == 'Commuting' & uva_R()$Sub_category == 'Student Commuting',]
+      commut2 = uva_R()[uva_R()$Category == 'Commuting' & uva_R()$Sub_category == 'Student Commuting',]
       
       # Add Projected category
       commut1$Timeframe = 'Baseline'
@@ -12005,8 +12477,10 @@ server <- function(input, output) {
     else if(input$scenario == "Implementing All Scenarios"){
       # Footprint Units are MT C and MT N
       
-      commut1 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Student Commuting',]
-      commut2 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Student Commuting',]
+      #commut1 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Student Commuting',]
+      #commut2 = uva[uva$Category == 'Commuting' & uva$Sub_category == 'Student Commuting',]
+      commut1 = uva_R()[uva_R()$Category == 'Commuting' & uva_R()$Sub_category == 'Student Commuting',]
+      commut2 = uva_R()[uva_R()$Category == 'Commuting' & uva_R()$Sub_category == 'Student Commuting',]
       
       # Add Projected category
       commut1$Timeframe = 'Baseline'
@@ -12605,8 +13079,10 @@ server <- function(input, output) {
     #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     if(input$scenario == "Manual Scenario"){
     # ENGERGY
-    Energy1 = uva[uva$Category == 'On-Campus Stationary Sources',]
-    Energy2 = Energy1
+    #Energy1 = uva[uva$Category == 'On-Campus Stationary Sources',]
+      Energy1 = uva_R()[uva_R()$Category == 'On-Campus Stationary Sources',]
+      Energy2 = Energy1
+    
     
     # Add Projected category
     Energy1$Timeframe = 'Baseline'
@@ -12649,7 +13125,8 @@ server <- function(input, output) {
     #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     else if(input$scenario == "Business as Usual Growth to 2025"){
       # ENGERGY
-      Energy1 = uva[uva$Category == 'On-Campus Stationary Sources',]
+      #Energy1 = uva[uva$Category == 'On-Campus Stationary Sources',]
+      Energy1 = uva_R()[uva_R()$Category == 'On-Campus Stationary Sources',]
     Energy2 = Energy1
     
     # Add Projected category
@@ -12693,7 +13170,8 @@ server <- function(input, output) {
     #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     else if(input$scenario == "15% Vegetarian Meals"){
       # ENGERGY
-      Energy1 = uva[uva$Category == 'On-Campus Stationary Sources',]
+      #Energy1 = uva[uva$Category == 'On-Campus Stationary Sources',]
+      Energy1 = uva_R()[uva_R()$Category == 'On-Campus Stationary Sources',]
       Energy2 = Energy1
       
       # Add Projected category
@@ -12737,7 +13215,8 @@ server <- function(input, output) {
     #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     else if(input$scenario == "Replacement of 20% beef with Chicken"){
       # ENGERGY
-      Energy1 = uva[uva$Category == 'On-Campus Stationary Sources',]
+      #Energy1 = uva[uva$Category == 'On-Campus Stationary Sources',]
+      Energy1 = uva_R()[uva_R()$Category == 'On-Campus Stationary Sources',]
       Energy2 = Energy1
       
       # Add Projected category
@@ -12781,7 +13260,8 @@ server <- function(input, output) {
     #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     else if(input$scenario == "Fuel Optimization"){
       # ENGERGY
-      Energy1 = uva[uva$Category == 'On-Campus Stationary Sources',]
+      #Energy1 = uva[uva$Category == 'On-Campus Stationary Sources',]
+      Energy1 = uva_R()[uva_R()$Category == 'On-Campus Stationary Sources',]
       Energy2 = Energy1
       
       # Add Projected category
@@ -12825,7 +13305,8 @@ server <- function(input, output) {
     #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     else if(input$scenario == "Implementing All Scenarios"){
       # ENGERGY
-      Energy1 = uva[uva$Category == 'On-Campus Stationary Sources',]
+      #Energy1 = uva[uva$Category == 'On-Campus Stationary Sources',]
+      Energy1 = uva_R()[uva_R()$Category == 'On-Campus Stationary Sources',]
       Energy2 = Energy1
       
       # Add Projected category
@@ -15356,126 +15837,247 @@ server <- function(input, output) {
   #**************************************************************************************************
   
   
+  #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  
+  INVENT_TABLE1 <- reactive({
+    
+  #TABLE_R
+  temp1_ = TABLE_R()[TABLE_R()$Timeframe == 'Baseline',]
+  temp2_ = TABLE_R()[TABLE_R()$Timeframe == 'Projected',]
+  # temp1_ = TABLE_R[TABLE_R$Timeframe == 'Baseline',]
+  # temp2_ = TABLE_R[TABLE_R$Timeframe == 'Projected',]
+  
+  #temp1_ = COMBO_R_()[COMBO_R_()$Timeframe == 'Baseline',]
+  #temp2_ = COMBO_R_()[COMBO_R_()$Timeframe == 'Projected',]
+  # temp1_ = COMBO_R_[COMBO_R_$Timeframe == 'Baseline',]
+  # temp2_ = COMBO_R_[COMBO_R_$Timeframe == 'Projected',]
+  temp1 = temp1_[,c('Category','Sub_category','Source','Units','inventory')] 
+  temp2 = temp2_[,c('Category','Sub_category','Source','Units','inventory')] 
+  
+  
+  
+  ##################################################################################
+  # Get the Commuting and Energy Tables from Separate Reactive Sections
+  # commut_fac2 = COMMUTING_FAC_TABLE_R[COMMUTING_FAC_TABLE_R$Timeframe == 'Projected',]
+  # commut_staf2 = COMMUTING_STAFF_TABLE_R[COMMUTING_STAFF_TABLE_R$Timeframe == 'Projected',]
+  # commut_stud2 = COMMUTING_STUD_TABLE_R[COMMUTING_STUD_TABLE_R$Timeframe == 'Projected',]
+  # energy2 = ENERGY_TABLE_R[ENERGY_TABLE_R$Timeframe == 'Projected',]
+  
+  commut_fac2 = COMMUTING_FAC_TABLE_R()[COMMUTING_FAC_TABLE_R()$Timeframe == 'Projected',]
+  commut_staf2 = COMMUTING_STAFF_TABLE_R()[COMMUTING_STAFF_TABLE_R()$Timeframe == 'Projected',]
+  commut_stud2 = COMMUTING_STUD_TABLE_R()[COMMUTING_STUD_TABLE_R()$Timeframe == 'Projected',]
+  energy2 = ENERGY_TABLE_R()[ENERGY_TABLE_R()$Timeframe == 'Projected',]
+  
+  # Get the Projected Inventory Value
+  fac_auto = commut_fac2[commut_fac2$Source == "Automobile",]$inventory
+  fac_Bike = commut_fac2[commut_fac2$Source == "Bike",]$inventory
+  fac_carp = commut_fac2[commut_fac2$Source == "Carpool",]$inventory
+  fac_Pbus = commut_fac2[commut_fac2$Source == "Public Bus",]$inventory
+  fac_walk = commut_fac2[commut_fac2$Source == "Walk",]$inventory
+  
+  staf_auto = commut_staf2[commut_staf2$Source == "Automobile",]$inventory
+  staf_Bike = commut_staf2[commut_staf2$Source == "Bike",]$inventory
+  staf_carp = commut_staf2[commut_staf2$Source == "Carpool",]$inventory
+  staf_Pbus = commut_staf2[commut_staf2$Source == "Public Bus",]$inventory
+  staf_walk = commut_staf2[commut_staf2$Source == "Walk",]$inventory
+  
+  stud_auto = commut_stud2[commut_stud2$Source == "Automobile",]$inventory
+  stud_Bike = commut_stud2[commut_stud2$Source == "Bike",]$inventory
+  stud_carp = commut_stud2[commut_stud2$Source == "Carpool",]$inventory
+  stud_Pbus = commut_stud2[commut_stud2$Source == "Public Bus",]$inventory
+  stud_walk = commut_stud2[commut_stud2$Source == "Walk",]$inventory
+  
+  e_coal = energy2[energy2$Source == "Coal (Steam Coal)",]$inventory
+  e_oil = energy2[energy2$Source == "Distillate Oil (#1-4)",]$inventory
+  e_lpg = energy2[energy2$Source == "LPG (Propane)",]$inventory
+  e_gas = energy2[energy2$Source == "Natural Gas",]$inventory
+  
+  
+  # Exchange the commuting & energy value 
+  temp2$inventory[temp2$Sub_category == "Faculty Commuting" & 
+                    temp2$Source == "Automobile"] <- fac_auto
+  temp2$inventory[temp2$Sub_category == "Faculty Commuting" & 
+                    temp2$Source == "Bike"] <- fac_Bike
+  temp2$inventory[temp2$Sub_category == "Faculty Commuting" & 
+                    temp2$Source == "Carpool"] <- fac_carp
+  temp2$inventory[temp2$Sub_category == "Faculty Commuting" & 
+                    temp2$Source == "Public Bus"] <- fac_Pbus
+  temp2$inventory[temp2$Sub_category == "Faculty Commuting" & 
+                    temp2$Source == "Walk"] <- fac_walk
+  
+  temp2$inventory[temp2$Sub_category == "Staff Commuting" & 
+                    temp2$Source == "Automobile"] <- staf_auto
+  temp2$inventory[temp2$Sub_category == "Staff Commuting" & 
+                    temp2$Source == "Bike"] <- staf_Bike
+  temp2$inventory[temp2$Sub_category == "Staff Commuting" & 
+                    temp2$Source == "Carpool"] <- staf_carp
+  temp2$inventory[temp2$Sub_category == "Staff Commuting" & 
+                    temp2$Source == "Public Bus"] <- staf_Pbus
+  temp2$inventory[temp2$Sub_category == "Staff Commuting" & 
+                    temp2$Source == "Walk"] <- staf_walk
+  
+  temp2$inventory[temp2$Sub_category == "Student Commuting" & 
+                    temp2$Source == "Automobile"] <- stud_auto
+  temp2$inventory[temp2$Sub_category == "Student Commuting" & 
+                    temp2$Source == "Bike"] <- stud_Bike
+  temp2$inventory[temp2$Sub_category == "Student Commuting" & 
+                    temp2$Source == "Carpool"] <- stud_carp
+  temp2$inventory[temp2$Sub_category == "Student Commuting" & 
+                    temp2$Source == "Public Bus"] <- stud_Pbus
+  temp2$inventory[temp2$Sub_category == "Student Commuting" & 
+                    temp2$Source == "Walk"] <- stud_walk
+  
+  temp2$inventory[temp2$Source == "Coal (Steam Coal)"] <- e_coal
+  temp2$inventory[temp2$Source == "Distillate Oil (#1-4)"] <- e_oil
+  temp2$inventory[temp2$Source == "LPG (Propane)"] <- e_lpg
+  temp2$inventory[temp2$Source == "Natural Gas"] <- e_gas
+  
+  
+  ##################################################################################
+  
+  names(temp1)[5] = 'Baseline_Inventory'
+  names(temp2)[5] = 'Projected_Inventory'
+  
+  temp1 = unique(temp1)
+  temp2 = unique(temp2)   
+  
+  temp = merge(temp1,temp2,by=c('Category','Sub_category','Source','Units'))
+  
+  temp$Perc_Change = 100*(temp$Projected_Inventory - temp$Baseline_Inventory)/temp$Baseline_Inventory
+  
+  # Round decimal places
+  temp$Baseline_Inventory = round(temp$Baseline_Inventory,0)
+  temp$Projected_Inventory = round(temp$Projected_Inventory,0)
+  temp$Perc_Change = round(temp$Perc_Change,0)
+  
+  INVENT_TABLE1 = temp
+  
+  }) # reactive
+  
+  #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  
   output$INVENT_TABLE1 <- DT::renderDataTable({
 
-    #TABLE_R
-    temp1_ = TABLE_R()[TABLE_R()$Timeframe == 'Baseline',]
-    temp2_ = TABLE_R()[TABLE_R()$Timeframe == 'Projected',]
-    # temp1_ = TABLE_R[TABLE_R$Timeframe == 'Baseline',]
-    # temp2_ = TABLE_R[TABLE_R$Timeframe == 'Projected',]
-    
-    #temp1_ = COMBO_R_()[COMBO_R_()$Timeframe == 'Baseline',]
-    #temp2_ = COMBO_R_()[COMBO_R_()$Timeframe == 'Projected',]
-    # temp1_ = COMBO_R_[COMBO_R_$Timeframe == 'Baseline',]
-    # temp2_ = COMBO_R_[COMBO_R_$Timeframe == 'Projected',]
-    temp1 = temp1_[,c('Category','Sub_category','Source','Units','inventory')] 
-    temp2 = temp2_[,c('Category','Sub_category','Source','Units','inventory')] 
-    
-    
-    
-    ##################################################################################
-    # Get the Commuting and Energy Tables from Separate Reactive Sections
-    # commut_fac2 = COMMUTING_FAC_TABLE_R[COMMUTING_FAC_TABLE_R$Timeframe == 'Projected',]
-    # commut_staf2 = COMMUTING_STAFF_TABLE_R[COMMUTING_STAFF_TABLE_R$Timeframe == 'Projected',]
-    # commut_stud2 = COMMUTING_STUD_TABLE_R[COMMUTING_STUD_TABLE_R$Timeframe == 'Projected',]
-    # energy2 = ENERGY_TABLE_R[ENERGY_TABLE_R$Timeframe == 'Projected',]
-    
-    commut_fac2 = COMMUTING_FAC_TABLE_R()[COMMUTING_FAC_TABLE_R()$Timeframe == 'Projected',]
-    commut_staf2 = COMMUTING_STAFF_TABLE_R()[COMMUTING_STAFF_TABLE_R()$Timeframe == 'Projected',]
-    commut_stud2 = COMMUTING_STUD_TABLE_R()[COMMUTING_STUD_TABLE_R()$Timeframe == 'Projected',]
-    energy2 = ENERGY_TABLE_R()[ENERGY_TABLE_R()$Timeframe == 'Projected',]
-   
-    # Get the Projected Inventory Value
-    fac_auto = commut_fac2[commut_fac2$Source == "Automobile",]$inventory
-    fac_Bike = commut_fac2[commut_fac2$Source == "Bike",]$inventory
-    fac_carp = commut_fac2[commut_fac2$Source == "Carpool",]$inventory
-    fac_Pbus = commut_fac2[commut_fac2$Source == "Public Bus",]$inventory
-    fac_walk = commut_fac2[commut_fac2$Source == "Walk",]$inventory
-    
-    staf_auto = commut_staf2[commut_staf2$Source == "Automobile",]$inventory
-    staf_Bike = commut_staf2[commut_staf2$Source == "Bike",]$inventory
-    staf_carp = commut_staf2[commut_staf2$Source == "Carpool",]$inventory
-    staf_Pbus = commut_staf2[commut_staf2$Source == "Public Bus",]$inventory
-    staf_walk = commut_staf2[commut_staf2$Source == "Walk",]$inventory
-    
-    stud_auto = commut_stud2[commut_stud2$Source == "Automobile",]$inventory
-    stud_Bike = commut_stud2[commut_stud2$Source == "Bike",]$inventory
-    stud_carp = commut_stud2[commut_stud2$Source == "Carpool",]$inventory
-    stud_Pbus = commut_stud2[commut_stud2$Source == "Public Bus",]$inventory
-    stud_walk = commut_stud2[commut_stud2$Source == "Walk",]$inventory
-    
-    e_coal = energy2[energy2$Source == "Coal (Steam Coal)",]$inventory
-    e_oil = energy2[energy2$Source == "Distillate Oil (#1-4)",]$inventory
-    e_lpg = energy2[energy2$Source == "LPG (Propane)",]$inventory
-    e_gas = energy2[energy2$Source == "Natural Gas",]$inventory
-    
-    
-    # Exchange the commuting & energy value 
-    temp2$inventory[temp2$Sub_category == "Faculty Commuting" & 
-                     temp2$Source == "Automobile"] <- fac_auto
-    temp2$inventory[temp2$Sub_category == "Faculty Commuting" & 
-                      temp2$Source == "Bike"] <- fac_Bike
-    temp2$inventory[temp2$Sub_category == "Faculty Commuting" & 
-                      temp2$Source == "Carpool"] <- fac_carp
-    temp2$inventory[temp2$Sub_category == "Faculty Commuting" & 
-                      temp2$Source == "Public Bus"] <- fac_Pbus
-    temp2$inventory[temp2$Sub_category == "Faculty Commuting" & 
-                      temp2$Source == "Walk"] <- fac_walk
-    
-    temp2$inventory[temp2$Sub_category == "Staff Commuting" & 
-                      temp2$Source == "Automobile"] <- staf_auto
-    temp2$inventory[temp2$Sub_category == "Staff Commuting" & 
-                      temp2$Source == "Bike"] <- staf_Bike
-    temp2$inventory[temp2$Sub_category == "Staff Commuting" & 
-                      temp2$Source == "Carpool"] <- staf_carp
-    temp2$inventory[temp2$Sub_category == "Staff Commuting" & 
-                      temp2$Source == "Public Bus"] <- staf_Pbus
-    temp2$inventory[temp2$Sub_category == "Staff Commuting" & 
-                      temp2$Source == "Walk"] <- staf_walk
-    
-    temp2$inventory[temp2$Sub_category == "Student Commuting" & 
-                      temp2$Source == "Automobile"] <- stud_auto
-    temp2$inventory[temp2$Sub_category == "Student Commuting" & 
-                      temp2$Source == "Bike"] <- stud_Bike
-    temp2$inventory[temp2$Sub_category == "Student Commuting" & 
-                      temp2$Source == "Carpool"] <- stud_carp
-    temp2$inventory[temp2$Sub_category == "Student Commuting" & 
-                      temp2$Source == "Public Bus"] <- stud_Pbus
-    temp2$inventory[temp2$Sub_category == "Student Commuting" & 
-                      temp2$Source == "Walk"] <- stud_walk
-    
-    temp2$inventory[temp2$Source == "Coal (Steam Coal)"] <- e_coal
-    temp2$inventory[temp2$Source == "Distillate Oil (#1-4)"] <- e_oil
-    temp2$inventory[temp2$Source == "LPG (Propane)"] <- e_lpg
-    temp2$inventory[temp2$Source == "Natural Gas"] <- e_gas
-    
-  
-    ##################################################################################
-    
-    names(temp1)[5] = 'Baseline_Inventory'
-    names(temp2)[5] = 'Projected_Inventory'
-    
-    temp1 = unique(temp1)
-    temp2 = unique(temp2)   
-    
-    temp = merge(temp1,temp2,by=c('Category','Sub_category','Source','Units'))
-    
-    temp$Perc_Change = 100*(temp$Projected_Inventory - temp$Baseline_Inventory)/temp$Baseline_Inventory
-    
-    # Round decimal places
-    temp$Baseline_Inventory = round(temp$Baseline_Inventory,0)
-    temp$Projected_Inventory = round(temp$Projected_Inventory,0)
-    temp$Perc_Change = round(temp$Perc_Change,0)
-    
+    temp = INVENT_TABLE1()
     datatable(colnames=c("Category","Sub-Category","Source","Units",
                          "Baseline Inventory","Projected Inventory", '% Change'),
               temp)
+    #TABLE_R
+    # temp1_ = TABLE_R()[TABLE_R()$Timeframe == 'Baseline',]
+    # temp2_ = TABLE_R()[TABLE_R()$Timeframe == 'Projected',]
+    # # temp1_ = TABLE_R[TABLE_R$Timeframe == 'Baseline',]
+    # # temp2_ = TABLE_R[TABLE_R$Timeframe == 'Projected',]
+    # 
+    # #temp1_ = COMBO_R_()[COMBO_R_()$Timeframe == 'Baseline',]
+    # #temp2_ = COMBO_R_()[COMBO_R_()$Timeframe == 'Projected',]
+    # # temp1_ = COMBO_R_[COMBO_R_$Timeframe == 'Baseline',]
+    # # temp2_ = COMBO_R_[COMBO_R_$Timeframe == 'Projected',]
+    # temp1 = temp1_[,c('Category','Sub_category','Source','Units','inventory')] 
+    # temp2 = temp2_[,c('Category','Sub_category','Source','Units','inventory')] 
+    # 
+    # 
+    # 
+    # ##################################################################################
+    # # Get the Commuting and Energy Tables from Separate Reactive Sections
+    # # commut_fac2 = COMMUTING_FAC_TABLE_R[COMMUTING_FAC_TABLE_R$Timeframe == 'Projected',]
+    # # commut_staf2 = COMMUTING_STAFF_TABLE_R[COMMUTING_STAFF_TABLE_R$Timeframe == 'Projected',]
+    # # commut_stud2 = COMMUTING_STUD_TABLE_R[COMMUTING_STUD_TABLE_R$Timeframe == 'Projected',]
+    # # energy2 = ENERGY_TABLE_R[ENERGY_TABLE_R$Timeframe == 'Projected',]
+    # 
+    # commut_fac2 = COMMUTING_FAC_TABLE_R()[COMMUTING_FAC_TABLE_R()$Timeframe == 'Projected',]
+    # commut_staf2 = COMMUTING_STAFF_TABLE_R()[COMMUTING_STAFF_TABLE_R()$Timeframe == 'Projected',]
+    # commut_stud2 = COMMUTING_STUD_TABLE_R()[COMMUTING_STUD_TABLE_R()$Timeframe == 'Projected',]
+    # energy2 = ENERGY_TABLE_R()[ENERGY_TABLE_R()$Timeframe == 'Projected',]
+    # 
+    # # Get the Projected Inventory Value
+    # fac_auto = commut_fac2[commut_fac2$Source == "Automobile",]$inventory
+    # fac_Bike = commut_fac2[commut_fac2$Source == "Bike",]$inventory
+    # fac_carp = commut_fac2[commut_fac2$Source == "Carpool",]$inventory
+    # fac_Pbus = commut_fac2[commut_fac2$Source == "Public Bus",]$inventory
+    # fac_walk = commut_fac2[commut_fac2$Source == "Walk",]$inventory
+    # 
+    # staf_auto = commut_staf2[commut_staf2$Source == "Automobile",]$inventory
+    # staf_Bike = commut_staf2[commut_staf2$Source == "Bike",]$inventory
+    # staf_carp = commut_staf2[commut_staf2$Source == "Carpool",]$inventory
+    # staf_Pbus = commut_staf2[commut_staf2$Source == "Public Bus",]$inventory
+    # staf_walk = commut_staf2[commut_staf2$Source == "Walk",]$inventory
+    # 
+    # stud_auto = commut_stud2[commut_stud2$Source == "Automobile",]$inventory
+    # stud_Bike = commut_stud2[commut_stud2$Source == "Bike",]$inventory
+    # stud_carp = commut_stud2[commut_stud2$Source == "Carpool",]$inventory
+    # stud_Pbus = commut_stud2[commut_stud2$Source == "Public Bus",]$inventory
+    # stud_walk = commut_stud2[commut_stud2$Source == "Walk",]$inventory
+    # 
+    # e_coal = energy2[energy2$Source == "Coal (Steam Coal)",]$inventory
+    # e_oil = energy2[energy2$Source == "Distillate Oil (#1-4)",]$inventory
+    # e_lpg = energy2[energy2$Source == "LPG (Propane)",]$inventory
+    # e_gas = energy2[energy2$Source == "Natural Gas",]$inventory
+    # 
+    # 
+    # # Exchange the commuting & energy value 
+    # temp2$inventory[temp2$Sub_category == "Faculty Commuting" & 
+    #                  temp2$Source == "Automobile"] <- fac_auto
+    # temp2$inventory[temp2$Sub_category == "Faculty Commuting" & 
+    #                   temp2$Source == "Bike"] <- fac_Bike
+    # temp2$inventory[temp2$Sub_category == "Faculty Commuting" & 
+    #                   temp2$Source == "Carpool"] <- fac_carp
+    # temp2$inventory[temp2$Sub_category == "Faculty Commuting" & 
+    #                   temp2$Source == "Public Bus"] <- fac_Pbus
+    # temp2$inventory[temp2$Sub_category == "Faculty Commuting" & 
+    #                   temp2$Source == "Walk"] <- fac_walk
+    # 
+    # temp2$inventory[temp2$Sub_category == "Staff Commuting" & 
+    #                   temp2$Source == "Automobile"] <- staf_auto
+    # temp2$inventory[temp2$Sub_category == "Staff Commuting" & 
+    #                   temp2$Source == "Bike"] <- staf_Bike
+    # temp2$inventory[temp2$Sub_category == "Staff Commuting" & 
+    #                   temp2$Source == "Carpool"] <- staf_carp
+    # temp2$inventory[temp2$Sub_category == "Staff Commuting" & 
+    #                   temp2$Source == "Public Bus"] <- staf_Pbus
+    # temp2$inventory[temp2$Sub_category == "Staff Commuting" & 
+    #                   temp2$Source == "Walk"] <- staf_walk
+    # 
+    # temp2$inventory[temp2$Sub_category == "Student Commuting" & 
+    #                   temp2$Source == "Automobile"] <- stud_auto
+    # temp2$inventory[temp2$Sub_category == "Student Commuting" & 
+    #                   temp2$Source == "Bike"] <- stud_Bike
+    # temp2$inventory[temp2$Sub_category == "Student Commuting" & 
+    #                   temp2$Source == "Carpool"] <- stud_carp
+    # temp2$inventory[temp2$Sub_category == "Student Commuting" & 
+    #                   temp2$Source == "Public Bus"] <- stud_Pbus
+    # temp2$inventory[temp2$Sub_category == "Student Commuting" & 
+    #                   temp2$Source == "Walk"] <- stud_walk
+    # 
+    # temp2$inventory[temp2$Source == "Coal (Steam Coal)"] <- e_coal
+    # temp2$inventory[temp2$Source == "Distillate Oil (#1-4)"] <- e_oil
+    # temp2$inventory[temp2$Source == "LPG (Propane)"] <- e_lpg
+    # temp2$inventory[temp2$Source == "Natural Gas"] <- e_gas
+    # 
+    # 
+    # ##################################################################################
+    # 
+    # names(temp1)[5] = 'Baseline_Inventory'
+    # names(temp2)[5] = 'Projected_Inventory'
+    # 
+    # temp1 = unique(temp1)
+    # temp2 = unique(temp2)   
+    # 
+    # temp = merge(temp1,temp2,by=c('Category','Sub_category','Source','Units'))
+    # 
+    # temp$Perc_Change = 100*(temp$Projected_Inventory - temp$Baseline_Inventory)/temp$Baseline_Inventory
+    # 
+    # # Round decimal places
+    # temp$Baseline_Inventory = round(temp$Baseline_Inventory,0)
+    # temp$Projected_Inventory = round(temp$Projected_Inventory,0)
+    # temp$Perc_Change = round(temp$Perc_Change,0)
+    
+    
     
   }) 
   
-  output$INVENT_TABLE2 <- DT::renderDataTable({
-    #if(input$scenario == "Manual Scenario"){ # table
-      
+  #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  
+  INVENT_TABLE2 <- reactive({
     food1 = FOOD_R()[FOOD_R()$Timeframe == 'Baseline',]
     food2 = FOOD_R()[FOOD_R()$Timeframe == 'Projected',]
     # food1 = FOOD_R[FOOD_R$Timeframe == 'Baseline',]
@@ -15491,7 +16093,28 @@ server <- function(input, output) {
     food$Baseline_Inventory = round(food$Baseline_Inventory,0)
     food$Projected_Inventory = round(food$Projected_Inventory,0)
     food$Perc_Change = round(food$Perc_Change,0)
-    
+    INVENT_TABLE2 = food
+    }) # reactive
+  
+  output$INVENT_TABLE2 <- DT::renderDataTable({
+    #if(input$scenario == "Manual Scenario"){ # table
+      
+    # food1 = FOOD_R()[FOOD_R()$Timeframe == 'Baseline',]
+    # food2 = FOOD_R()[FOOD_R()$Timeframe == 'Projected',]
+    # # food1 = FOOD_R[FOOD_R$Timeframe == 'Baseline',]
+    # # food2 = FOOD_R[FOOD_R$Timeframe == 'Projected',]
+    # food1 = food1[,c('Category','inventory')]; names(food1)[2] = 'Baseline_Inventory'
+    # food2 = food2[,c('Category','inventory')]; names(food2)[2] = 'Projected_Inventory'
+    # 
+    # food = merge(food1,food2,by='Category')
+    # 
+    # food$Perc_Change = 100*(food$Projected_Inventory - food$Baseline_Inventory)/food$Baseline_Inventory
+    # 
+    # # Round decimal places
+    # food$Baseline_Inventory = round(food$Baseline_Inventory,0)
+    # food$Projected_Inventory = round(food$Projected_Inventory,0)
+    # food$Perc_Change = round(food$Perc_Change,0)
+    food = INVENT_TABLE2()
     datatable(colnames=c("Category","Baseline Inventory (kg)","Projected Inventory (kg)", '% Change'),
               food)
  
@@ -15584,6 +16207,10 @@ server <- function(input, output) {
     temp2$value = temp2$Perc_Foot
     temp2$value2 = paste0(temp2$value,'%')
     
+    # If value = 0% the convert to "" so that it won't be displayed
+    temp1$value2 = ifelse(temp1$value2 == "0%","",temp1$value2)
+    temp2$value2 = ifelse(temp2$value2 == "0%","",temp2$value2)
+    
     # Compute the position of the text labels as the cumulative sum of the proportion
     temp1 <- temp1 %>%
       arrange(desc(variable)) %>%
@@ -15614,7 +16241,8 @@ server <- function(input, output) {
       coord_polar("y", start=0,  direction = -1)+
       theme_void()+
       ggtitle( "Baseline")+
-      geom_text_repel(aes(x=1.3, y = lab.ypos, label = value2),size=6)+
+      geom_text_repel(aes(x=1.3, y = lab.ypos, label = value2), # label = ifelse(is.na(value2),"",value2)
+                      size=6,max.overlaps=20)+
       guides(colour = guide_legend(reverse=T))+
       scale_fill_manual(values = mypal)+
       theme(legend.position = "none")+
@@ -15627,7 +16255,8 @@ server <- function(input, output) {
       coord_polar("y", start=0,  direction = -1)+
       theme_void()+
       ggtitle( "Projected")+
-      geom_text_repel(aes(x=1.3, y = lab.ypos, label = value2),size=6)+
+      geom_text_repel(aes(x=1.3, y = lab.ypos, label = value2),
+                      size=6,max.overlaps=20)+
       guides(colour = guide_legend(reverse=T))+
       scale_fill_manual(values = mypal)+
       theme(legend.position = "none")+
@@ -15803,6 +16432,10 @@ server <- function(input, output) {
     temp2$value = temp2$Perc_Foot
     temp2$value2 = paste0(temp2$value,'%')
     
+    # If value = 0% the convert to "" so that it won't be displayed
+    temp1$value2 = ifelse(temp1$value2 == "0%","",temp1$value2)
+    temp2$value2 = ifelse(temp2$value2 == "0%","",temp2$value2)
+    
     # Compute the position of the text labels as the cumulative sum of the proportion
     temp1 <- temp1 %>%
       arrange(desc(variable)) %>%
@@ -15833,7 +16466,7 @@ server <- function(input, output) {
       coord_polar("y", start=0,  direction = -1)+
       theme_void()+
       ggtitle( "Baseline")+
-      geom_text_repel(aes(x=1.3, y = lab.ypos, label = value2),size=6)+
+      geom_text_repel(aes(x=1.3, y = lab.ypos, label = value2),size=6,max.overlaps=20)+
       guides(colour = guide_legend(reverse=T))+
       scale_fill_manual(values = mypal)+
       theme(legend.position = "none")+
@@ -15846,7 +16479,7 @@ server <- function(input, output) {
       coord_polar("y", start=0,  direction = -1)+
       theme_void()+
       ggtitle( "Projected")+
-      geom_text_repel(aes(x=1.3, y = lab.ypos, label = value2),size=6)+
+      geom_text_repel(aes(x=1.3, y = lab.ypos, label = value2),size=6,max.overlaps=20)+
       guides(colour = guide_legend(reverse=T))+
       scale_fill_manual(values = mypal)+
       theme(legend.position = "none")+
@@ -15995,6 +16628,10 @@ server <- function(input, output) {
     temp2$value = temp2$Perc_Foot
     temp2$value2 = paste0(temp2$value,'%')
     
+    # If value = 0% the convert to "" so that it won't be displayed
+    temp1$value2 = ifelse(temp1$value2 == "0%","",temp1$value2)
+    temp2$value2 = ifelse(temp2$value2 == "0%","",temp2$value2)
+    
     # Compute the position of the text labels as the cumulative sum of the proportion
     temp1 <- temp1 %>%
       arrange(desc(variable)) %>%
@@ -16025,7 +16662,7 @@ server <- function(input, output) {
       coord_polar("y", start=0,  direction = -1)+
       theme_void()+
       ggtitle( "Baseline")+
-      geom_text_repel(aes(x=1.3, y = lab.ypos, label = value2),size=6)+
+      geom_text_repel(aes(x=1.3, y = lab.ypos, label = value2),size=6,max.overlaps=20)+
       guides(colour = guide_legend(reverse=T))+
       scale_fill_manual(values = mypal)+
       theme(legend.position = "none")+
@@ -16038,7 +16675,7 @@ server <- function(input, output) {
       coord_polar("y", start=0,  direction = -1)+
       theme_void()+
       ggtitle( "Projected")+
-      geom_text_repel(aes(x=1.3, y = lab.ypos, label = value2),size=6)+
+      geom_text_repel(aes(x=1.3, y = lab.ypos, label = value2),size=6,max.overlaps=20)+
       guides(colour = guide_legend(reverse=T))+
       scale_fill_manual(values = mypal)+
       theme(legend.position = "none")+
@@ -16167,6 +16804,10 @@ server <- function(input, output) {
     temp2$value = temp2$Perc_Foot
     temp2$value2 = paste0(temp2$value,'%')
     
+    # If value = 0% the convert to "" so that it won't be displayed
+    temp1$value2 = ifelse(temp1$value2 == "0%","",temp1$value2)
+    temp2$value2 = ifelse(temp2$value2 == "0%","",temp2$value2)
+    
     # Compute the position of the text labels as the cumulative sum of the proportion
     temp1 <- temp1 %>%
       arrange(desc(variable)) %>%
@@ -16197,7 +16838,7 @@ server <- function(input, output) {
       coord_polar("y", start=0,  direction = -1)+
       theme_void()+
       ggtitle( "Baseline")+
-      geom_text_repel(aes(x=1.3, y = lab.ypos, label = value2),size=6)+
+      geom_text_repel(aes(x=1.3, y = lab.ypos, label = value2),size=6,max.overlaps=20)+
       guides(colour = guide_legend(reverse=T))+
       scale_fill_manual(values = mypal)+
       theme(legend.position = "none")+
@@ -16210,7 +16851,7 @@ server <- function(input, output) {
       coord_polar("y", start=0,  direction = -1)+
       theme_void()+
       ggtitle( "Projected")+
-      geom_text_repel(aes(x=1.3, y = lab.ypos, label = value2),size=6)+
+      geom_text_repel(aes(x=1.3, y = lab.ypos, label = value2),size=6,max.overlaps=20)+
       guides(colour = guide_legend(reverse=T))+
       scale_fill_manual(values = mypal)+
       theme(legend.position = "none")+
@@ -20397,6 +21038,10 @@ server <- function(input, output) {
     temper2$value = temper2$Perc_Cost
     temper2$value2 = paste0(temper2$value,'%')
     
+    # If value = 0% the convert to "" so that it won't be displayed
+    temper1$value2 = ifelse(temper1$value2 == "0%","",temper1$value2)
+    temper2$value2 = ifelse(temper2$value2 == "0%","",temper2$value2)
+    
     # Compute the position of the text labels as the cumulative sum of the proportion
     temper1 <- temper1 %>%
       arrange(desc(variable)) %>%
@@ -20427,7 +21072,7 @@ server <- function(input, output) {
       coord_polar("y", start=0,  direction = -1)+
       theme_void()+
       ggtitle( "Baseline")+
-      geom_text_repel(aes(x=1.3, y = lab.ypos, label = value2),size=6)+
+      geom_text_repel(aes(x=1.3, y = lab.ypos, label = value2),size=6,max.overlaps=20)+
       guides(colour = guide_legend(reverse=T))+
       scale_fill_manual(values = mypal)+
       theme(legend.position = "none")+
@@ -20440,7 +21085,7 @@ server <- function(input, output) {
       coord_polar("y", start=0,  direction = -1)+
       theme_void()+
       ggtitle( "Projected")+
-      geom_text_repel(aes(x=1.3, y = lab.ypos, label = value2),size=6)+
+      geom_text_repel(aes(x=1.3, y = lab.ypos, label = value2),size=6,max.overlaps=20)+
       guides(colour = guide_legend(reverse=T))+
       scale_fill_manual(values = mypal)+
       theme(legend.position = "none")+
@@ -20579,9 +21224,27 @@ server <- function(input, output) {
               COSTER5) %>% formatCurrency(c("N_Cost_Baseline","N_Cost_Projected","Difference"),digits=0)
   })
   
+  #**************************************************************************
+  
+  # Downloadable csv of selected data from Inventory Tables
+  output$downloadData0 <- downloadHandler(
+    filename = function()
+      if(input$Table_INVENT=="Main Inventory Table") {
+        "Main_Inventory_Table.csv"
+      } else if(input$Table_INVENT=="Food Inventory Table"){ 
+        "Food_Inventory_Table.csv"
+      },
+    
+    content = function(file) 
+      if(input$Table_INVENT=="Main Inventory Table") {
+        write.csv(INVENT_TABLE1(), file, row.names = FALSE)
+      } else if(input$Table_INVENT=="Food Inventory Table"){
+        write.csv(INVENT_TABLE2(), file, row.names = FALSE) 
+      } 
+    )
   
   # Downloadable csv of selected dataset from C,N,P,W Footprint Output
-  output$downloadData <- downloadHandler(
+  output$downloadData1 <- downloadHandler(
       filename = function()
         if(input$Table_CNPW=="Baseline Footprint") {
           "Baseline_CNPW_Footprint.csv"
@@ -20722,6 +21385,23 @@ output$downloadData5 <- downloadHandler(
     } else if(input$Table_Cost=="N Damage Costs by N Type"){
       write.csv(COST_TABLE5(), file, row.names = FALSE) 
     })
+
+# Downloadable csv of selected data from Inventory Tables
+output$downloadData6 <- downloadHandler(
+  filename = function()
+    if(input$Table_BAU=="All: BAU vs Scenario % Change") {
+      "All_BAUvsScenario_Prc_Change_Table.csv"
+    } else if(input$Table_BAU=="Food: BAU vs. Scenario % Change"){ 
+      "Food_BAUvsScenario_Prc_Change_Table.csv"
+    },
+  
+  content = function(file) 
+    if(input$Table_BAU=="All: BAU vs Scenario % Change") {
+      write.csv(BAUvsScenario_TABLE1(), file, row.names = FALSE)
+    } else if(input$Table_BAU=="Food: BAU vs. Scenario % Change"){
+      write.csv(BAUvsScenario_TABLE2(), file, row.names = FALSE) 
+    } 
+)
 
 # Reactive BAU vs. Scenarios 
 BAUvsScenario_TABLE1 <- reactive({
